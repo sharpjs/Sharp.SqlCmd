@@ -1,0 +1,44 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.438
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sharp.SqlCmd", "Sharp.SqlCmd\Sharp.SqlCmd.csproj", "{C2C2D416-1962-4418-B36D-F3E05DCB9C7E}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sharp.SqlCmd.Tests", "Sharp.SqlCmd.Tests\Sharp.SqlCmd.Tests.csproj", "{633C7B70-9AA8-4464-87E1-1E06B3961CD9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".root", ".root", "{A1C5C89F-88FD-4560-808B-F8ABDA3F1486}"
+	ProjectSection(SolutionItems) = preProject
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		CHANGES.md = CHANGES.md
+		General.cs = General.cs
+		General.props = General.props
+		LICENSE.txt = LICENSE.txt
+		Make.ps1 = Make.ps1
+		README.md = README.md
+		Set-Version.ps1 = Set-Version.ps1
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C2C2D416-1962-4418-B36D-F3E05DCB9C7E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C2C2D416-1962-4418-B36D-F3E05DCB9C7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C2C2D416-1962-4418-B36D-F3E05DCB9C7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C2C2D416-1962-4418-B36D-F3E05DCB9C7E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{633C7B70-9AA8-4464-87E1-1E06B3961CD9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{633C7B70-9AA8-4464-87E1-1E06B3961CD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{633C7B70-9AA8-4464-87E1-1E06B3961CD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{633C7B70-9AA8-4464-87E1-1E06B3961CD9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {01D4E452-10C1-496E-88C4-EC1B81643F22}
+	EndGlobalSection
+EndGlobal
