@@ -1,0 +1,42 @@
+# ASP.NET Core
+# Build and test ASP.NET Core projects targeting .NET Core.
+# Add steps that run tests, create a NuGet package, deploy, and more:
+# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
+
+trigger:
+- master
+
+pool:
+  vmImage: 'vs2017-win2016'
+
+variables:
+  buildConfiguration: 'Release'
+  assemblyNameRoot: 'Sharp.SqlCmd'
+
+steps:
+# Build
+- task: DotNetCoreCLI@2
+  displayName: 'Build'
+  inputs:
+    command: build
+    configuration: $(buildConfiguration)
+
+# Tests
+- task: DotNetCoreCLI@2
+  displayName: 'Test: netcoreapp2.2'
+  inputs:
+    command: test
+    projects: '**/*Tests/*.csproj'
+    configuration: $(buildConfiguration)
+    arguments: '--framework:netcoreapp2.2 --collect "Code coverage"'
+    nobuild: true
+
+# Tests
+- task: DotNetCoreCLI@2
+  displayName: 'Test: net472'
+  inputs:
+    command: test
+    projects: '**/*Tests/*.csproj'
+    configuration: $(buildConfiguration)
+    arguments: '--framework:net472 --collect "Code coverage"'
+    nobuild: true
