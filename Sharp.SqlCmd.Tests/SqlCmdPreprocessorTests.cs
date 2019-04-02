@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 
@@ -119,6 +120,15 @@ namespace Sharp.SqlCmd
             processor
                 .Process(InputSql)
                 .Should().Equal(OutputSql);
+        }
+
+        [Test]
+        public void Process_Builder_VariableReplacement_NotFound()
+        {
+            new SqlCmdPreprocessor()
+                .Invoking(p => p.Process("$(Foo)").ToList())
+                .Should().Throw<SqlCmdException>()
+                .WithMessage("Variable Foo is not defined.");
         }
 
         private const string
