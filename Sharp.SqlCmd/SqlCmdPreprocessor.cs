@@ -153,11 +153,10 @@ namespace Sharp.SqlCmd
 
             Assume.That(sql != null);
             Assume.That(0 <= start && start < sql.Length);
-            Assume.That(match != null);
-            Assume.That(match.Success);
+            Assume.That(match?.Success == true);
 
             // Start with the partial batch found in substring mode
-            var builder = InitializeBuilder(sql, start, match.Index);
+            var builder = InitializeBuilder(match.Index - start);
             int next;
 
             for (;;)
@@ -215,56 +214,47 @@ namespace Sharp.SqlCmd
             return (sql: builder.ToString(), next: sql.Length);
         }
 
-        private StringBuilder InitializeBuilder(string sql, int start, int end)
+        private StringBuilder InitializeBuilder(int capacity)
         {
             const int MinimumBufferSize = 4096;
 
-            // Calculate sizes
-            var length   = end - start;
-            var capacity = length < MinimumBufferSize
+            // Calculate actual capacity
+            capacity = capacity < MinimumBufferSize
                 ? MinimumBufferSize
-                : length.GetNextPowerOf2Saturating();
+                : capacity.GetNextPowerOf2Saturating();
 
-            var builder = _builder;
+            // Create builder if first time
+            var builder =_builder;
             if (builder == null)
-            {
-                // Create builder for first time
-                 builder = new StringBuilder(sql, start, length, capacity);
-                _builder = builder;
-            }
-            else // (builder != null)
-            {
-                // Reuse builder
-                builder.Clear();
-                builder.EnsureCapacity(capacity);
-                builder.Append(sql, start, length);
-            }
+                return _builder = new StringBuilder(capacity);
 
+            // Recycle existing builder
+            builder.Clear().EnsureCapacity(capacity);
             return builder;
         }
 
-        private void ReplaceVariablesIn(string sql, int start, int length)
+        private void ReplaceVariablesIn(string sql, int index, int length)
         {
             Assume.That(sql != null);
-            Assume.That(0 <= start && start < sql.Length);
-            Assume.That(0 <= length && length <= sql.Length - start);
+            Assume.That(0 <= index  && index  <  sql.Length);
+            Assume.That(0 <= length && length <= sql.Length - index);
 
-            var end   = start + length;
-            var match = VariableRegex.Match(sql, start, length);
+            var end   = index + length;
+            var match = VariableRegex.Match(sql, index, length);
 
             while (match.Success)
             {
-                _builder.Append(sql, start, match.Index - start);
+                _builder.Append(sql, index, match.Index - index);
                 ReplaceVariable(match);
 
-                start = match.Index + match.Length;
-                if (start >= end)
+                index = match.Index + match.Length;
+                if (index >= end)
                     return;
 
                 match = match.NextMatch();
             }
 
-            _builder.Append(sql, start, end - start);
+            _builder.Append(sql, index, end - index);
         }
 
         private void ReplaceVariable(Match match)
