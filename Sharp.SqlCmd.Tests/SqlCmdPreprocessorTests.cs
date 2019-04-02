@@ -70,9 +70,10 @@ namespace Sharp.SqlCmd
         }
 
         private const string
-            BatchA         = "BATCH A\r\n",
-            BatchB         = "BATCH B\r\n",
-            BatchC         = "BATCH C\r\n",
-            BatchSeparator = "GO\r\n";
+            Eol            = "\r\n",
+            BatchA         = "BATCH A" + Eol,
+            BatchB         = "BATCH B" + Eol,
+            BatchC         = "BATCH C" + Eol,
+            BatchSeparator = "GO"      + Eol;
     }
 }
