@@ -145,24 +145,25 @@ namespace Sharp.SqlCmd
             return (sql.Substring(start), next: sql.Length);
         }
 
-        private (string sql, int next) BuildNextBatch(string sql, int start, Match match)
+        private (string sql, int next) BuildNextBatch(string sql, int index, Match match)
         {
             // If necessary, batch discovery transitions to the less-efficient builder mode, in
             // which the batch is assembled using a StringBuilder.  Here, match is the text element
             // that caused the transition into builder mode.
 
             Assume.That(sql != null);
-            Assume.That(0 <= start && start < sql.Length);
+            Assume.That(0 <= index && index < sql.Length);
             Assume.That(match?.Success == true);
 
-            // Start with the partial batch found in substring mode
-            var builder = InitializeBuilder(match.Index - start);
-            int next;
+            var builder = InitializeBuilder(match.Index - index);
 
             for (;;)
             {
+                // Append unmatched prefix to batch
+                builder.Append(sql, index, match.Index - index);
+
                 // Advance position to just after the found element
-                next = match.Index + match.Length;
+                index = match.Index + match.Length;
 
                 // Interpret the found element
                 switch (sql[match.Index])
@@ -193,24 +194,25 @@ namespace Sharp.SqlCmd
                     // Batch separator
                     case 'g':
                     case 'G':
-                        return (sql: builder.ToString(), next);
+                        // Return non-final batch
+                        return (sql: builder.ToString(), index);
                 }
 
                 // Detect end of input
-                if (next == sql.Length)
+                if (index == sql.Length)
                     break;
 
                 // Get next significant text element
-                match = TokenRegex.Match(sql, next);
-                if (!match.Success)
-                    break;
+                match = TokenRegex.Match(sql, index);
+                if (match.Success)
+                    continue;
 
-                builder.Append(sql, next, match.Index - next);
+                // Append unmatched suffix of final token
+                builder.Append(sql, index, sql.Length - index);
+                break;
             }
 
-            builder.Append(sql, next, sql.Length - next);
-
-            // Final batch
+            // Return non-final batch
             return (sql: builder.ToString(), next: sql.Length);
         }
 
