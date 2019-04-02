@@ -112,6 +112,7 @@ namespace Sharp.SqlCmd
                     // Comment
                     case '-':
                     case '/':
+                    default:
                         // Ignore comments
                         continue;
 
@@ -171,6 +172,7 @@ namespace Sharp.SqlCmd
                     // Comment
                     case '-':
                     case '/':
+                    default:
                         // Add comments to batch verbatim
                         builder.Append(sql, match.Index, match.Length);
                         break;
