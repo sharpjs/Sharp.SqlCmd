@@ -57,7 +57,29 @@ namespace Sharp.SqlCmd
         }
 
         [Test]
-        public void Process_Substring_CommentedOutGo()
+        public void Process_Substring_QuotedString()
+        {
+            const string Sql
+                = "SELECT a = 'b''c' FROM d.e;\r\n";
+
+            new SqlCmdPreprocessor()
+                .Process(Sql)
+                .Should().Equal(Sql);
+        }
+
+        [Test]
+        public void Process_Substring_QuotedIdentifier()
+        {
+            const string Sql
+                = "SELECT a = [b]]c] FROM d.e;\r\n";
+
+            new SqlCmdPreprocessor()
+                .Process(Sql)
+                .Should().Equal(Sql);
+        }
+
+        [Test]
+        public void Process_Substring_LineCommentGo()
         {
             const string Sql
                 = BatchA
@@ -67,6 +89,36 @@ namespace Sharp.SqlCmd
             new SqlCmdPreprocessor()
                 .Process(Sql)
                 .Should().Equal(Sql);
+        }
+
+        [Test]
+        public void Process_Substring_BlockCommentGo()
+        {
+            const string Sql
+                = BatchA
+                + "/*" + BatchSeparator
+                + "*/" + Eol
+                + BatchB;
+
+            new SqlCmdPreprocessor()
+                .Process(Sql)
+                .Should().Equal(Sql);
+        }
+
+        [Test]
+        public void Process_Builder_VariableReplacement()
+        {
+            const string
+                InputSql  = "x$(Foo)y" + Eol,
+                OutputSql = "xBary"    + Eol;
+
+            var processor = new SqlCmdPreprocessor();
+
+            processor.Variables["Foo"] = "Bar";
+
+            processor
+                .Process(InputSql)
+                .Should().Equal(OutputSql);
         }
 
         private const string
