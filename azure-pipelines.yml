@@ -1,6 +1,4 @@
 # ASP.NET Core
-# Build and test ASP.NET Core projects targeting .NET Core.
-# Add steps that run tests, create a NuGet package, deploy, and more:
 # https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
 
 trigger:
@@ -10,8 +8,8 @@ pool:
   vmImage: 'vs2017-win2016'
 
 variables:
-  buildConfiguration: 'Release'
-  assemblyNameRoot: 'Sharp.SqlCmd'
+  BuildConfiguration: 'Release'
+  AssemblyNameRoot: 'Sharp.SqlCmd'
 
 steps:
 # Build
@@ -19,7 +17,7 @@ steps:
   displayName: 'Build'
   inputs:
     command: build
-    configuration: $(buildConfiguration)
+    configuration: $(BuildConfiguration)
 
 # Tests
 - task: DotNetCoreCLI@2
@@ -27,8 +25,8 @@ steps:
   inputs:
     command: test
     projects: '**/*Tests/*.csproj'
-    configuration: $(buildConfiguration)
-    arguments: '--framework:netcoreapp2.2 --collect "Code coverage"'
+    configuration: $(BuildConfiguration)
+    arguments: '--framework netcoreapp2.2 --collect "Code coverage"'
     nobuild: true
 
 # Tests
@@ -37,6 +35,6 @@ steps:
   inputs:
     command: test
     projects: '**/*Tests/*.csproj'
-    configuration: $(buildConfiguration)
-    arguments: '--framework:net472 --collect "Code coverage"'
+    configuration: $(BuildConfiguration)
+    arguments: '--framework net472 --collect "Code coverage"'
     nobuild: true
