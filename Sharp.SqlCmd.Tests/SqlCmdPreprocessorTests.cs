@@ -56,6 +56,19 @@ namespace Sharp.SqlCmd
                 .Should().Equal(BatchA, BatchB, BatchC);
         }
 
+        [Test]
+        public void Process_Substring_CommentedOutGo()
+        {
+            const string Sql
+                = BatchA
+                + "--" + BatchSeparator
+                + BatchB;
+
+            new SqlCmdPreprocessor()
+                .Process(Sql)
+                .Should().Equal(Sql);
+        }
+
         private const string
             BatchA         = "BATCH A\r\n",
             BatchB         = "BATCH B\r\n",
