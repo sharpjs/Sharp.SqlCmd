@@ -6,6 +6,8 @@
         {
             // https://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
             // but saturating at int.MaxValue instead of overflow
+            // NOTE: Returns 0 when value == 0
+            // NOTE: Undefined when value <  0
 
             value--;
             value |= value >>  1;
