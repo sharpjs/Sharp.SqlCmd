@@ -263,13 +263,9 @@ namespace Sharp.SqlCmd
 
         private void ReplaceVariable(Match match)
         {
-            Assume.That(match != null);
-            Assume.That(match.Success);
-            Assume.That(match.Groups["name"] != null);
+            Assume.That(!string.IsNullOrEmpty(match?.Groups?["name"]?.Value));
 
             var name = match.Groups["name"].Value;
-            Assume.That(name != null);
-            Assume.That(name.Length > 0);
 
             if (!_variables.TryGetValue(name, out var value))
                 throw SqlCmdException.ForVariableNotDefined(name);
@@ -279,6 +275,26 @@ namespace Sharp.SqlCmd
 
         private void PerformDirective(Match match)
         {
+            Assume.That(!string.IsNullOrEmpty(match?.Groups?["name"]?.Value));
+
+            var groups = match.Groups;
+            var name   = groups["name"] .Value;
+            var args   = groups["args"]?.Value ?? "";
+
+            if (name.Equals("r", StringComparison.OrdinalIgnoreCase))
+                PerformIncludeDirective(match, args);
+            else // setvar
+                PerformSetvarDirective(match, args);
+        }
+
+        private void PerformIncludeDirective(Match match, string args)
+        {
+            // TODO: Implement
+        }
+
+        private void PerformSetvarDirective(Match match, string args)
+        {
+            // TODO: Implement
         }
 
         private static readonly Regex TokenRegex = new Regex(
