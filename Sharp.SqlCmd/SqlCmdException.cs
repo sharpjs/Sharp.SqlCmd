@@ -7,6 +7,7 @@ namespace Sharp.SqlCmd
     /// <summary>
     ///   Represents an error condition encountered during SQLCMD preprocessing.
     /// </summary>
+    [Serializable]
     public class SqlCmdException : DataException
     {
         private const string
