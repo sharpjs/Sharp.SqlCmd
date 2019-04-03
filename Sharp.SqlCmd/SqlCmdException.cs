@@ -10,7 +10,7 @@ namespace Sharp.SqlCmd
     [Serializable]
     public class SqlCmdException : DataException
     {
-        private const string
+        internal const string
             DefaultMessage            = "An error occurred during SQLCMD preprocessing.",
             VariableNotDefinedMessage = "Variable {0} is not defined.";
 
