@@ -44,25 +44,12 @@ namespace Sharp.SqlCmd
         public void Process_Substring_MultiBatch()
         {
             TestProcess(
-                string.Join(BatchSeparator, BatchA, BatchB, BatchC),
+                BatchA + BatchSeparator +
+                BatchB + BatchSeparator +
+                BatchC
+                ,
                 BatchA, BatchB, BatchC
             );
-        }
-
-        [Test]
-        public void Process_Substring_QuotedString()
-        {
-            const string Sql = "SELECT x = 'a''b';" + Eol;
-
-            TestProcess(Sql, Sql);
-        }
-
-        [Test]
-        public void Process_Substring_QuotedIdentifier()
-        {
-            const string Sql = "SELECT x = [a]]b];" + Eol;
-
-            TestProcess(Sql, Sql);
         }
 
         [Test]
@@ -84,6 +71,22 @@ namespace Sharp.SqlCmd
                 + "/*" + BatchSeparator
                 + "*/" + Eol
                 + BatchB;
+
+            TestProcess(Sql, Sql);
+        }
+
+        [Test]
+        public void Process_Substring_QuotedString()
+        {
+            const string Sql = "SELECT x = 'a''b';" + Eol;
+
+            TestProcess(Sql, Sql);
+        }
+
+        [Test]
+        public void Process_Substring_QuotedIdentifier()
+        {
+            const string Sql = "SELECT x = [a]]b];" + Eol;
 
             TestProcess(Sql, Sql);
         }
@@ -129,12 +132,65 @@ namespace Sharp.SqlCmd
         }
 
         [Test]
+        public void Process_Builder_SingleBatch()
+        {
+            TestProcess(UseBuilderMode + BatchA, BatchA);
+        }
+
+        [Test]
+        public void Process_Builder_MultiBatch()
+        {
+            TestProcess(
+                UseBuilderMode + BatchA + BatchSeparator +
+                UseBuilderMode + BatchB + BatchSeparator +
+                UseBuilderMode + BatchC
+                ,
+                BatchA, BatchB, BatchC
+            );
+        }
+
+        [Test]
+        public void Process_Builder_LineCommentGo()
+        {
+            const string Sql
+                = BatchA
+                + "--" + BatchSeparator
+                + BatchB;
+
+            TestProcess(UseBuilderMode + Sql, Sql);
+        }
+
+        [Test]
+        public void Process_Builder_BlockCommentGo()
+        {
+            const string Sql
+                = BatchA
+                + "/*" + BatchSeparator
+                + "*/" + Eol
+                + BatchB;
+
+            TestProcess(UseBuilderMode + Sql, Sql);
+        }
+
+        [Test]
         public void Process_Builder_VariableReplacement_NotFound()
         {
             new SqlCmdPreprocessor()
                 .Invoking(p => p.Process("$(Foo)").ToList())
                 .Should().Throw<SqlCmdException>()
                 .WithMessage("Variable Foo is not defined.");
+        }
+
+        [Test]
+        public void Process_MixedMode_MultiBatch()
+        {
+            TestProcess(
+                UseBuilderMode + BatchA + BatchSeparator +
+                                 BatchB + BatchSeparator +
+                UseBuilderMode + BatchC
+                ,
+                BatchA, BatchB, BatchC
+            );
         }
 
         private static void TestProcess(
@@ -158,9 +214,10 @@ namespace Sharp.SqlCmd
 
         private const string
             Eol            = "\r\n",
-            BatchA         = "BATCH A" + Eol,
-            BatchB         = "BATCH B" + Eol,
-            BatchC         = "BATCH C" + Eol,
-            BatchSeparator = "GO"      + Eol;
+            BatchA         = "BATCH A"     + Eol,
+            BatchB         = "BATCH B"     + Eol,
+            BatchC         = "BATCH C"     + Eol,
+            BatchSeparator = "GO"          + Eol,
+            UseBuilderMode = ":setvar _ 0" + Eol;
     }
 }
