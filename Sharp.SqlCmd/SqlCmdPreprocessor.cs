@@ -283,14 +283,14 @@ namespace Sharp.SqlCmd
 
         private static readonly Regex TokenRegex = new Regex(
             @"
-                '    ( [^']  | ''   )*        ( '     | \z ) |  # string
-                \[   ( [^\]] | \]\] )*        ( \]    | \z ) |  # quoted identifier
-                --   .*?                      ( \r?\n | \z ) |  # line comment
-                /\*  ( .     | \n   )*?       ( \*/   | \z ) |  # block comment
-                \$\( (?<name>\w+)             ( \)    | \z ) |  # variable replacement
-                ^\s* :r      \s+ (?<args>.*?) ( \r?\n | \z ) |  # include directive
-                ^\s* :setvar \s+ (?<args>.*?) ( \r?\n | \z ) |  # set-variable directive
-                ^GO                           ( \r?\n | \z )    # batch separator
+                '    ( [^']  | ''   )*                    ( '     | \z ) | # string
+                \[   ( [^\]] | \]\] )*                    ( \]    | \z ) | # quoted identifier
+                --   .*?                                  ( \r?\n | \z ) | # line comment
+                /\*  ( .     | \n   )*?                   ( \*/   | \z ) | # block comment
+                \$\( (?<name>\w+)                         ( \)    | \z ) | # variable replacement
+                ^\s* :(?<name>r)      (\s+ (?<args>.*?))? ( \r?\n | \z ) | # include directive
+                ^\s* :(?<name>setvar) (\s+ (?<args>.*?))? ( \r?\n | \z ) | # set-variable directive
+                ^GO                                       ( \r?\n | \z )   # batch separator
             ",
             Options
         );
