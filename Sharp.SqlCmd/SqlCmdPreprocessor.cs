@@ -112,7 +112,6 @@ namespace Sharp.SqlCmd
                     // Comment
                     case '-':
                     case '/':
-                    default:
                         // Ignore comments
                         continue;
 
@@ -130,6 +129,7 @@ namespace Sharp.SqlCmd
                     // Variable replacement or preprocessor directive
                     case '$':
                     case ':':
+                    default:
                         // Requires builder mode
                         return BuildNextBatch(sql, start, match);
 
@@ -172,7 +172,6 @@ namespace Sharp.SqlCmd
                     // Comment
                     case '-':
                     case '/':
-                    default:
                         // Add comments to batch verbatim
                         builder.Append(sql, match.Index, match.Length);
                         break;
@@ -190,6 +189,7 @@ namespace Sharp.SqlCmd
 
                     // Preprocessor directive
                     case ':':
+                    default:
                         PerformDirective(match);
                         break;
 
@@ -283,14 +283,14 @@ namespace Sharp.SqlCmd
 
         private static readonly Regex TokenRegex = new Regex(
             @"
-                '    ( [^']  | ''   )*  ( '     | \z ) |     # string
-                \[   ( [^\]] | \]\] )*  ( \]    | \z ) |     # quoted identifier
-                --   .*?                ( \r?\n | \z ) |     # line comment
-                /\*  ( .     | \n   )*? ( \*/   | \z ) |     # block comment
-                \$\( (?<name>\w+)       ( \)    | \z ) |     # variable replacement
-                ^:r      \s+            ( \r?\n | \z ) |     # include directive
-                ^:setvar \s+            ( \r?\n | \z ) |     # set-variable directive
-                ^GO                     ( \r?\n | \z )       # batch separator
+                '    ( [^']  | ''   )*        ( '     | \z ) |  # string
+                \[   ( [^\]] | \]\] )*        ( \]    | \z ) |  # quoted identifier
+                --   .*?                      ( \r?\n | \z ) |  # line comment
+                /\*  ( .     | \n   )*?       ( \*/   | \z ) |  # block comment
+                \$\( (?<name>\w+)             ( \)    | \z ) |  # variable replacement
+                ^\s* :r      \s+ (?<args>.*?) ( \r?\n | \z ) |  # include directive
+                ^\s* :setvar \s+ (?<args>.*?) ( \r?\n | \z ) |  # set-variable directive
+                ^GO                           ( \r?\n | \z )    # batch separator
             ",
             Options
         );
