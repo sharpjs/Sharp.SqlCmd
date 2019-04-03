@@ -283,10 +283,10 @@ namespace Sharp.SqlCmd
 
         private static readonly Regex TokenRegex = new Regex(
             @"
+                --     .             *?                   ( \r?\n | \z ) | # line comment
+                /\*  ( .     | \n   )*?                   ( \*/   | \z ) | # block comment
                 '    ( [^']  | ''   )*                    ( '     | \z ) | # string
                 \[   ( [^\]] | \]\] )*                    ( \]    | \z ) | # quoted identifier
-                --   .*?                                  ( \r?\n | \z ) | # line comment
-                /\*  ( .     | \n   )*?                   ( \*/   | \z ) | # block comment
                 \$\( (?<name>\w+)                         ( \)    | \z ) | # variable replacement
                 ^\s* :(?<name>r)      (\s+ (?<args>.*?))? ( \r?\n | \z ) | # include directive
                 ^\s* :(?<name>setvar) (\s+ (?<args>.*?))? ( \r?\n | \z ) | # set-variable directive
