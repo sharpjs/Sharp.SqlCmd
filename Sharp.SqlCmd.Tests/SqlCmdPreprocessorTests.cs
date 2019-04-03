@@ -123,6 +123,38 @@ namespace Sharp.SqlCmd
         }
 
         [Test]
+        public void Process_Builder_QuotedStringWithVariableReplacement()
+        {
+            const string
+                InputSql  = "a'x$(Foo)y''z'b" + Eol,
+                OutputSql = "a'xBary''z'b"    + Eol;
+
+            var processor = new SqlCmdPreprocessor();
+
+            processor.Variables["Foo"] = "Bar";
+
+            processor
+                .Process(InputSql)
+                .Should().Equal(OutputSql);
+        }
+
+        [Test]
+        public void Process_Builder_QuotedIdentifierWithVariableReplacement()
+        {
+            const string
+                InputSql  = "a[x$(Foo)y]]z]b" + Eol,
+                OutputSql = "a[xBary]]z]b"    + Eol;
+
+            var processor = new SqlCmdPreprocessor();
+
+            processor.Variables["Foo"] = "Bar";
+
+            processor
+                .Process(InputSql)
+                .Should().Equal(OutputSql);
+        }
+
+        [Test]
         public void Process_Builder_VariableReplacement_NotFound()
         {
             new SqlCmdPreprocessor()
