@@ -119,7 +119,7 @@ namespace Sharp.SqlCmd
         }
 
         [Test]
-        public void Process_Builder_QuotedIdentifierWithVariableReplacement2()
+        public void Process_Builder_QuotedIdentifierWithVariableReplacement_Unterminated()
         {
             TestProcess(
                 p => p.Variables["v"] = "1234",
