@@ -31,52 +31,38 @@ namespace Sharp.SqlCmd
         [Test]
         public void Process_Empty()
         {
-            new SqlCmdPreprocessor()
-                .Process("")
-                .Should().BeEmpty();
+            TestProcess("");
         }
 
         [Test]
         public void Process_Substring_SingleBatch()
         {
-            new SqlCmdPreprocessor()
-                .Process(BatchA)
-                .Should().ContainSingle(BatchA);
+            TestProcess(BatchA, BatchA);
         }
 
         [Test]
         public void Process_Substring_MultiBatch()
         {
-            const string Sql
-                = BatchA + BatchSeparator
-                + BatchB + BatchSeparator
-                + BatchC;
-
-            new SqlCmdPreprocessor()
-                .Process(Sql)
-                .Should().Equal(BatchA, BatchB, BatchC);
+            TestProcess(
+                string.Join(BatchSeparator, BatchA, BatchB, BatchC),
+                BatchA, BatchB, BatchC
+            );
         }
 
         [Test]
         public void Process_Substring_QuotedString()
         {
-            const string Sql
-                = "SELECT a = 'b''c' FROM d.e;\r\n";
+            const string Sql = "SELECT x = 'a''b';" + Eol;
 
-            new SqlCmdPreprocessor()
-                .Process(Sql)
-                .Should().Equal(Sql);
+            TestProcess(Sql, Sql);
         }
 
         [Test]
         public void Process_Substring_QuotedIdentifier()
         {
-            const string Sql
-                = "SELECT a = [b]]c] FROM d.e;\r\n";
+            const string Sql = "SELECT x = [a]]b];" + Eol;
 
-            new SqlCmdPreprocessor()
-                .Process(Sql)
-                .Should().Equal(Sql);
+            TestProcess(Sql, Sql);
         }
 
         [Test]
@@ -87,9 +73,7 @@ namespace Sharp.SqlCmd
                 + "--" + BatchSeparator
                 + BatchB;
 
-            new SqlCmdPreprocessor()
-                .Process(Sql)
-                .Should().Equal(Sql);
+            TestProcess(Sql, Sql);
         }
 
         [Test]
@@ -101,57 +85,47 @@ namespace Sharp.SqlCmd
                 + "*/" + Eol
                 + BatchB;
 
-            new SqlCmdPreprocessor()
-                .Process(Sql)
-                .Should().Equal(Sql);
+            TestProcess(Sql, Sql);
         }
 
         [Test]
         public void Process_Builder_VariableReplacement()
         {
-            const string
-                InputSql  = "x$(Foo)y" + Eol,
-                OutputSql = "xBary"    + Eol;
-
-            var processor = new SqlCmdPreprocessor();
-
-            processor.Variables["Foo"] = "Bar";
-
-            processor
-                .Process(InputSql)
-                .Should().Equal(OutputSql);
+            TestProcess(
+                p => p.Variables["v"] = "1234",
+                "SELECT x = $(v);" + Eol,
+                "SELECT x = 1234;" + Eol
+            );
         }
 
         [Test]
         public void Process_Builder_QuotedStringWithVariableReplacement()
         {
-            const string
-                InputSql  = "a'x$(Foo)y''z'b" + Eol,
-                OutputSql = "a'xBary''z'b"    + Eol;
-
-            var processor = new SqlCmdPreprocessor();
-
-            processor.Variables["Foo"] = "Bar";
-
-            processor
-                .Process(InputSql)
-                .Should().Equal(OutputSql);
+            TestProcess(
+                p => p.Variables["v"] = "1234",
+                "SELECT x = '$(v)';" + Eol,
+                "SELECT x = '1234';" + Eol
+            );
         }
 
         [Test]
         public void Process_Builder_QuotedIdentifierWithVariableReplacement()
         {
-            const string
-                InputSql  = "a[x$(Foo)y]]z]b" + Eol,
-                OutputSql = "a[xBary]]z]b"    + Eol;
+            TestProcess(
+                p => p.Variables["v"] = "1234",
+                "SELECT x = [$(v)];" + Eol,
+                "SELECT x = [1234];" + Eol
+            );
+        }
 
-            var processor = new SqlCmdPreprocessor();
-
-            processor.Variables["Foo"] = "Bar";
-
-            processor
-                .Process(InputSql)
-                .Should().Equal(OutputSql);
+        [Test]
+        public void Process_Builder_QuotedIdentifierWithVariableReplacement2()
+        {
+            TestProcess(
+                p => p.Variables["v"] = "1234",
+                "SELECT x = [$(v)",
+                "SELECT x = [1234"
+            );
         }
 
         [Test]
@@ -161,6 +135,25 @@ namespace Sharp.SqlCmd
                 .Invoking(p => p.Process("$(Foo)").ToList())
                 .Should().Throw<SqlCmdException>()
                 .WithMessage("Variable Foo is not defined.");
+        }
+
+        private static void TestProcess(
+            string          input,
+            params string[] outputs)
+        {
+            TestProcess(null, input, outputs);
+        }
+
+        private static void TestProcess(
+            Action<SqlCmdPreprocessor> setup,
+            string                     input,
+            params string[]            outputs)
+        {
+            var processor = new SqlCmdPreprocessor();
+
+            setup?.Invoke(processor);
+
+            processor.Process(input).Should().Equal(outputs);
         }
 
         private const string
