@@ -70,5 +70,27 @@ namespace Sharp.SqlCmd
         /// </returns>
         public static SqlCmdException ForVariableNotDefined(string name)
             => new SqlCmdException(string.Format(VariableNotDefinedMessage, name));
+
+        /// <summary>
+        ///   Creates a <see cref="SqlCmdException"/> representing the error
+        ///   that occurs when a :r (include) directive has invalid syntax.
+        /// </summary>
+        /// <returns>
+        ///   An exception representing the error that occurs when
+        ///   a :r (include) directive has invalid syntax.
+        /// </returns>
+        public static Exception ForIncludeSyntax()
+            => new SqlCmdException("Invalid syntax for :r.");
+
+        /// <summary>
+        ///   Creates a <see cref="SqlCmdException"/> representing the error
+        ///   that occurs when a :setvar directive has invalid syntax.
+        /// </summary>
+        /// <returns>
+        ///   An exception representing the error that occurs when
+        ///   a :setvar directive has invalid syntax.
+        /// </returns>
+        public static SqlCmdException ForSetVarSyntax()
+            => new SqlCmdException("Invalid syntax for :setvar.");
     }
 }

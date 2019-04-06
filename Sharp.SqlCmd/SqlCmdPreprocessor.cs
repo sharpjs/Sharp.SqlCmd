@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 using static System.Text.RegularExpressions.RegexOptions;
@@ -275,43 +276,77 @@ namespace Sharp.SqlCmd
 
         private void PerformDirective(Match match)
         {
-            Assume.That(!string.IsNullOrEmpty(match?.Groups?["name"]?.Value));
+            Assume.That(!string.IsNullOrEmpty(match?.Groups?["dir"]?.Value));
 
-            var groups = match.Groups;
-            var name   = groups["name"] .Value;
-            var args   = groups["args"]?.Value ?? "";
+            var name = match.Groups["dir"].Value;
 
             if (name.Equals("r", StringComparison.OrdinalIgnoreCase))
-                PerformIncludeDirective(match, args);
+                PerformIncludeDirective(match);
             else // setvar
-                PerformSetvarDirective(match, args);
+                PerformSetvarDirective(match);
         }
 
-        private void PerformIncludeDirective(Match match, string args)
+        private void PerformIncludeDirective(Match match)
         {
-            // TODO: Implement
+            var path = match.Groups["path"]?.Value ?? throw SqlCmdException.ForIncludeSyntax();
+            var text = File.ReadAllText(path, Encoding.UTF8);
+
+            Process(text); // TODO: Need to continue building current batch
         }
 
-        private void PerformSetvarDirective(Match match, string args)
+        private void PerformSetvarDirective(Match match)
         {
-            // TODO: Implement
+            var name   = match.Groups["name" ]?.Value ?? throw SqlCmdException.ForSetVarSyntax();
+            var value  = match.Groups["value"]?.Value ?? "";
+
+            _variables[name] = value;
         }
 
-        private static readonly Regex TokenRegex = new Regex(
+        private static readonly Regex TokenRegex = new Regex
+        (
             @"
-                --     .             *?                   ( \r?\n | \z ) | # line comment
-                /\*  ( .     | \n   )*?                   ( \*/   | \z ) | # block comment
-                '    ( [^']  | ''   )*                    ( '     | \z ) | # string
-                \[   ( [^\]] | \]\] )*                    ( \]    | \z ) | # quoted identifier
-                \$\( (?<name>\w+)                         ( \)    | \z ) | # variable replacement
-                ^\s* :(?<name>r)      (\s+ (?<args>.*?))? ( \r?\n | \z ) | # include directive
-                ^\s* :(?<name>setvar) (\s+ (?<args>.*?))? ( \r?\n | \z ) | # set-variable directive
-                ^GO                                       ( \r?\n | \z )   # batch separator
+                # simple tokens
+                --     .             *? ( \r?\n | \z ) |    # line comment
+                /\*  ( .     | \n   )*? ( \*/   | \z ) |    # block comment
+                '    ( [^']  | ''   )*  ( '     | \z ) |    # string
+                \[   ( [^\]] | \]\] )*  ( \]    | \z ) |    # quoted identifier
+                \$\( (?<name>\w+)       ( \)    | \z ) |    # variable replacement
+                ^GO                     ( \r?\n | \z ) |    # batch separator
+
+                # directives
+                ^\s* :
+                (
+                    (?<dir>r)                               # include directive
+                    (
+                        \s+
+                        (    (?<path> \S+               )       # non-quoted path
+                        | "" (?<path> ( [^""] | """" )+ ) ""    # quoted path
+                        )
+                        \s*
+                    |
+                        .*?                                     # invalid
+                    )
+                |   
+                    (?<dir>setvar)                          # set-variable directive
+                    (
+                        \s+
+                        (?<name> (?!\d) \w+ )                   # name
+                        \s+
+                        (    (?<value> \S+               )      # non-quoted value
+                        | "" (?<value> ( [^""] | """" )+ ) ""   # quoted value
+                        )
+                        \s*
+                    |
+                        .*?
+                    )
+                )
+                ( \r?\n | \z )
             ",
             Options
         );
 
-        private static readonly Regex VariableRegex = new Regex(
+        private static readonly Regex VariableRegex = new Regex
+        (
             @"
                 \$\( (?<name>\w+) \)
             ",
