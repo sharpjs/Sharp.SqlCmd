@@ -276,7 +276,7 @@ namespace Sharp.SqlCmd
 
         private void PerformDirective(Match match)
         {
-            Assume.That(!string.IsNullOrEmpty(match?.Groups?["dir"]?.Value));
+            Assume.That(!string.IsNullOrEmpty(match?.Groups["dir"]?.Value));
 
             var name = match.Groups["dir"].Value;
 
