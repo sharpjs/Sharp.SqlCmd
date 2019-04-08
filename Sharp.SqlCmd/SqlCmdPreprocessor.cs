@@ -314,30 +314,30 @@ namespace Sharp.SqlCmd
                 ^GO                     ( \r?\n | \z ) |    # batch separator
 
                 # directives
-                ^\s* :
+                ^[ \t]* :
                 (
                     (?<dir>r)                               # include directive
                     (
-                        \s+
-                        (    (?<path> \S+               )       # non-quoted path
-                        | "" (?<path> ( [^""] | """" )+ ) ""    # quoted path
+                        [ \t]+
+                        (    (?<path> ( [^"" \t\r\n] | \r(?!\n) )+ )        # non-quoted path
+                        | "" (?<path> ( [^""]        | """"     )+ ) ""     # quoted path
                         )
-                        \s*
+                        [ \t]*
                     |
-                        .*?                                     # invalid
+                        .*?                                                 # invalid
                     )
                 |   
                     (?<dir>setvar)                          # set-variable directive
                     (
-                        \s+
-                        (?<name> (?!\d) \w+ )                   # name
-                        \s+
-                        (    (?<value> \S+               )      # non-quoted value
-                        | "" (?<value> ( [^""] | """" )+ ) ""   # quoted value
+                        [ \t]+
+                        (?<name> (?!\d) \w+ )                               # name
+                        [ \t]+
+                        (    (?<value> ( [^"" \t\r\n] | \r(?!\n) )+ )       # non-quoted value
+                        | "" (?<value> ( [^""]        | """"     )+ ) ""    # quoted value
                         )
-                        \s*
+                        [ \t]*
                     |
-                        .*?
+                        .*?                                                 # invalid
                     )
                 )
                 ( \r?\n | \z )
