@@ -229,7 +229,7 @@ namespace Sharp.SqlCmd
                 : capacity.GetNextPowerOf2Saturating();
 
             // Create builder if first time
-            var builder =_builder;
+            var builder = _builder;
             if (builder == null)
                 return _builder = new StringBuilder(capacity);
 
@@ -296,8 +296,8 @@ namespace Sharp.SqlCmd
 
         private void PerformSetvarDirective(Match match)
         {
-            var name   = match.Groups["name" ]?.Value ?? throw SqlCmdException.ForSetVarSyntax();
-            var value  = match.Groups["value"]?.Value ?? "";
+            var name  = match.Groups["name" ]?.Value ?? throw SqlCmdException.ForSetVarSyntax();
+            var value = match.Groups["value"]?.Value ?? "";
 
             _variables[name] = value;
         }
