@@ -24,7 +24,8 @@ namespace Sharp.SqlCmd
     public class SqlCmdPreprocessor
     {
         private readonly Dictionary<string, string> _variables;
-        private          StringBuilder              _builder;
+        private         StringBuilder               _builder;
+        private         Encoding                    _encoding;
 
         /// <summary>
         ///   Initializes a new <see cref="SqlCmdPreprocessor"/> instance.
@@ -44,6 +45,19 @@ namespace Sharp.SqlCmd
         ///   The default is <c>false</c> to match SQLCMD behavior.
         /// </summary>
         public bool EnableVariableReplacementInSetvar { get; set; }
+
+        /// <summary>
+        ///   Gets or sets the encoding applied to files read during processing.  The default
+        ///   encoding is UTF-8, configured to throw if an invalid byte sequence is encountered.
+        /// </summary>
+        /// <exception cref="ArgumentNullException">
+        ///   Attempted to set the value to <c>null</c>.
+        /// </exception>
+        public Encoding Encoding
+        {
+            get => _encoding         ?? (_encoding = MakeDefaultEncoding());
+            set => _encoding = value ?? throw new ArgumentNullException(nameof(value));
+        }
 
         /// <summary>
         ///   Processes the specified SQL text, splitting batches, replacing preprocessor
@@ -289,7 +303,7 @@ namespace Sharp.SqlCmd
         private void PerformIncludeDirective(Match match)
         {
             var path = match.Groups["path"]?.Value ?? throw SqlCmdException.ForIncludeSyntax();
-            var text = File.ReadAllText(path, Encoding.UTF8);
+            var text = File.ReadAllText(path, Encoding);
 
             Process(text); // TODO: Need to continue building current batch
         }
@@ -300,6 +314,14 @@ namespace Sharp.SqlCmd
             var value = match.Groups["value"]?.Value ?? "";
 
             _variables[name] = value;
+        }
+
+        private static Encoding MakeDefaultEncoding()
+        {
+            return new UTF8Encoding(
+                encoderShouldEmitUTF8Identifier: false,
+                throwOnInvalidBytes:             true
+            );
         }
 
         private static readonly Regex TokenRegex = new Regex
