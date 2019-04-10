@@ -24,8 +24,8 @@ namespace Sharp.SqlCmd
     public class SqlCmdPreprocessor
     {
         private readonly Dictionary<string, string> _variables;
-        private         StringBuilder               _builder;
-        private         Encoding                    _encoding;
+        private          StringBuilder              _builder;
+        private          Encoding                   _encoding;
 
         /// <summary>
         ///   Initializes a new <see cref="SqlCmdPreprocessor"/> instance.
